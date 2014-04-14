@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+var fs = require("fs"),
+	path = require("path");
+
+// Allow for size of file input
+var size = process.argv[2] ? parseInt(process.argv[2]) : 1000,
+	filename = process.argv[3] || "numbers.txt";
+
+// Generate a file of random integers separated by \n
+var file = fs.createWriteStream(path.resolve(__dirname, "../" + filename));
+
+console.log("Generating file '" + filename + "' of " + size + " random integers");
+
+// Write the random numbers to the file
+var buffer = [];
+for(var i = 0; i < size; i++) {
+	buffer.push(Math.floor(Math.random() * 1000000) + 1);
+
+	// Every 1000 integers, write buffer and empty
+	if(i % 1000 == 0 || i == (size - 1)) file.write(buffer.join("\n") + "\n"), buffer.length = 0;
+}
+
+// Close the stream
+file.end();
+

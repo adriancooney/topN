@@ -1,0 +1,128 @@
+#!/usr/bin/env node
+
+var fs = require("fs");
+
+/**
+ * Usage:
+ *
+ * topN <filename> <N>
+ *
+ * Example:
+ * 	topN file.txt 30
+ */
+
+/**
+ * topN -- Biggest number leaderboard.
+ */
+var topN = function(N) {
+	this.numbers = [];
+	this.lowest = -Infinity;
+	this.N = typeof N === "undefined" ? 30 : N;
+};
+
+/**
+ * Test to see if a number beats the current leaderboards. If
+ * it does, add it to the `numbers` array and sort.
+ *
+ * @param {number} num Number to test.
+ * @return {boolean} True if added, false if not
+ */
+topN.prototype.testNumber = function(num) {
+	// Quick test to see if it's lower than the lowest
+	// Saves looping over the array every time
+	if (num > this.lowest || this.numbers.length < this.N) {
+		var nums = this.numbers;
+
+		// Remove the lowest number from the array if were surpassing the N
+		if(nums.length >= this.N) nums.splice(nums.indexOf(this.lowest), 1);
+
+		// Push the new number to the array
+		nums.push(num);
+
+		// Sort the new array
+		nums.sort(function(u, v) { return u - v; });
+
+		// Set the new lowest
+		this.lowest = nums[0];
+
+		return true;
+
+	} else return false;
+};
+
+/**
+ * Initlize the program on a file.
+ * 
+ * @param  {string}   filename The file.
+ * @param  {number}   N        N amount of numbers to track.
+ * @param  {Function} callback Callback with (err, topN)
+ */
+function init(filename, N, callback) {
+	var file = fs.createReadStream(filename), // Find the file
+		top = new topN(N); // Create a new leaderboard
+
+	// Handle stream of data
+	file.on("data", function(chunk) {
+		chunk.toString().split("\n") // Convert chunk to string and split by newline
+			.map(function(v) { return parseInt(v); }) // Parse integer
+			.forEach(topN.prototype.testNumber, top); // Loop over each integer and call testNumber on the leaderboard
+	});
+
+	// Gracefully handle errors
+	file.on("error", function(err) {
+		switch(err.code) {
+			case "ENOENT":
+				err.message = "File '" + err.path + "' does not exist.";
+			break;
+
+			default:
+				err.message = "Unknown error occurred.";
+		}
+
+		callback(err, null);
+	});
+
+	// When done, call the callback
+	file.on("end", function() {
+		callback(null, top);
+	});
+}
+
+/**
+ * Print the usage for the program.
+ * 
+ * @param  {String} err Add an error message to the output (optional)
+ */
+function usage(err) {
+	var help = [
+		"topN -- Print the largest N numbers in a given file",
+		"Usage:",
+		"  topN <filename> <N>",
+		"",
+		"Example:",
+		"  topN numbers.txt 30 # Prints the largest 30 numbers in numbers.txt"
+	];
+
+	if(err) help.unshift("Error: " + err, "");
+
+	console.log(help.join("\n"));
+}
+
+// Initilize the program if it's not require'd
+if (!module.parent) {
+
+	// Check the arguments first
+	if (!process.argv[2]) usage("Please provide a filename.");
+	if (!process.argv[3]) usage("Please provide N.");
+
+	init(process.argv[2], process.argv[3]);
+
+} else {
+
+	// Otherwise export for testing
+	module.exports = {
+		topN: topN,
+		init: init
+	};
+
+}

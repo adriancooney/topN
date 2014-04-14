@@ -1,0 +1,14 @@
+{
+  "name": "topN",
+  "version": "0.0.1",
+  "description": "Find the biggest N numbers in a file.",
+  "main": "./bin/topN",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Adrian Cooney (cooney.adrian@gmail.com)",
+  "license": "MIT"
+}
