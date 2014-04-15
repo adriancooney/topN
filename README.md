@@ -11,3 +11,6 @@ A small node program to output the largest N integers in a file of line separate
 
 ### Features
 topN uses Node's streams so entire file is never loaded into memory, only small chunks.
+
+### Test
+To run tests, do `npm test`. Requires [mocha](http://visionmedia.github.io/mocha/).
