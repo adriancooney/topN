@@ -115,7 +115,9 @@ if (!module.parent) {
 	if (!process.argv[2]) usage("Please provide a filename.");
 	if (!process.argv[3]) usage("Please provide N.");
 
-	init(process.argv[2], process.argv[3]);
+	init(process.argv[2], process.argv[3], function(err, top) {
+		if(!err) console.log(top.numbers.join(", "));
+	});
 
 } else {
 
