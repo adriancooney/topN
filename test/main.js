@@ -76,7 +76,7 @@ describe("init", function() {
 		init(BIG_NUMBER_FILE, 30, function() { done(); });
 	});
 
-	it("should run the program on an non-existant text file", function(done) {
-		init("foobar.txt", 30, function() { done(); });
+	it("should not run the program on an non-existant text file", function(done) {
+		init("foobar.txt", 30, function(err) { if(err) done(); });
 	});
 });
